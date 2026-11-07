@@ -2,6 +2,13 @@
 
 [Russian version](CHANGELOG_RU.md)
 
+## 1.0.2
+
+### Changed
+
+- Match the upstream endpoint editor typography, card layout and control placement.
+- Simplify the English and Russian READMEs to focus on plugin functionality and usage.
+
 ## 1.0.1
 
 ### Added
@@ -11,7 +18,6 @@
 ### Changed
 
 - English is the primary repository language, with linked Russian documentation copies using the `_RU` suffix.
-- Match the upstream endpoint editor typography, card layout and control placement.
 
 ## 1.0.0
 

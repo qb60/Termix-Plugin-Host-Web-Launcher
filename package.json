@@ -1,7 +1,7 @@
 {
   "name": "@custom-termix/host-web-launcher",
   "private": true,
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "license": "Apache-2.0",
   "engines": {

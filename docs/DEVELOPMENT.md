@@ -16,7 +16,7 @@ npm run validate
 npm run pack
 ```
 
-Run `build` before CLI `validate`: validation checks that `dist/backend.js` and `dist/frontend.js` exist. Packaging produces `host-web-launcher-1.0.1.tmxplug` in the project root. `node_modules`, `dist` and the package are excluded from Git.
+Run `build` before CLI `validate`: validation checks that `dist/backend.js` and `dist/frontend.js` exist. Packaging produces `host-web-launcher-1.0.2.tmxplug` in the project root. `node_modules`, `dist` and the package are excluded from Git.
 
 The main logic is in `src/frontend/launcher.ts`; registration and localized notifications are in `src/frontend/index.tsx`. `src/frontend/HostEditorSection.tsx` is registered with `registerHostEditorSection` in the top group and edits the list at `pluginSettings["host-web-launcher"].endpoints`. Fields are declared hidden in the manifest for core validation and persistence; `endpoints` is a JSON field. Legacy flat fields remain declared for compatibility and are read as one endpoint until the list is edited. An empty list does not restore the old fields. The SDK has no separate `contributes.hostActions` manifest field: the host action is registered with `app.registerHostAction`. `contributes.actions` is a different mechanism for exported frontend actions and is unused here.
 
