@@ -1,91 +1,64 @@
-<div align="center">
+# Host Web Launcher
 
-<img src="https://termix.site/img/logo.svg" width="120" alt="Termix Logo" />
+Открывает веб-интерфейс хоста напрямую в новой вкладке браузера. ID: `host-web-launcher`, версия: `1.0.0`, лицензия: Apache-2.0.
 
-<h1>Web Endpoint</h1>
+Установка и публикация обоих репозиториев описаны в прилагаемом `SETUP_RU.md` уровнем выше. После разделения репозиториев используйте также [INSTALLATION](docs/INSTALLATION.md), [DEVELOPMENT](docs/DEVELOPMENT.md) и [RELEASING](docs/RELEASING.md).
 
-<p>Open a host's web UI inside Termix, directly or over an SSH tunnel</p>
+## Настройка хоста
 
-<!-- VIDEO:START -->
+1. В Termix откройте редактор хоста и раздел **Host Web Launcher**. Форму создаёт сам Termix из манифеста, с использованием стандартного UI kit.
+2. Включите переключатель. Введите название сервиса, HTTP/HTTPS, веб-порт и путь.
+3. При необходимости задайте отдельное имя/IP веб-сервиса. Пустое поле использует адрес подключения хоста; SSH-порт никогда не становится веб-портом.
+4. Сохраните хост. Нажмите действие **Открыть веб-интерфейс** возле хоста или в его меню. При включённом блокировщике разрешите всплывающие окна для Termix.
 
-<a href="https://www.youtube.com/watch?v=1eVUCFcnlXw"><img src="https://img.shields.io/badge/Watch_the_demo-f59145?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch the demo on YouTube" /></a>
+Примеры:
 
-<!-- VIDEO:END -->
+| Адрес хоста          | Протокол | Веб-порт | Путь     | URL                                    |
+| -------------------- | -------- | -------- | -------- | -------------------------------------- |
+| `192.168.1.20`       | HTTPS    | 8006     | `/`      | `https://192.168.1.20:8006/`           |
+| `server.example.com` | HTTP     | 9000     | `/admin` | `http://server.example.com:9000/admin` |
+| `2001:db8::20`       | HTTPS    | 8006     | `/`      | `https://[2001:db8::20]:8006/`         |
 
-</div>
+Пустой веб-порт означает 80 для HTTP и 443 для HTTPS; стандартный URL API убирает эти порты из строки. Поддерживаются query, fragment, Unicode-имена и пути; существующее корректное percent encoding сохраняется. В поле адреса нельзя вводить протокол, порт, путь или учётные данные. IPv6 можно вводить в квадратных скобках и без них. Zone ID IPv6 (`%eth0`) не поддерживается браузерным URL API. Необычные сокращённые, восьмеричные и шестнадцатеричные IPv4 отклоняются.
 
-<br />
+## Область применения
 
-## Overview
+Поддерживаются Termix `>=26.10.3` с API `^1.9` и обычный веб-браузер. Действие вычисляет URL из уже загруженного хоста и вызывает `window.open(url, "_blank", "noopener,noreferrer")` синхронно, без сетевых запросов, таймеров и предварительных пустых вкладок. Страница Termix остаётся открытой. Браузер вправе открыть отдельное окно вместо вкладки согласно пользовательским настройкам; плагин не может принудительно изменить это решение.
 
-Web Endpoint opens a host's own web interface, like a router admin page, inside Termix instead of a separate browser tab.
+В текущих исходниках desktop Termix обработчик `setWindowOpenHandler` направляет HTTP/HTTPS в системный браузер. Плагин пользуется тем же браузерным вызовом и не обращается к Electron internals. Это поведение зависит от desktop-сборки и не проверено запуском GUI в этой среде. Отдельного публичного `openExternal` в исследованном frontend SDK нет. На старой/изменённой desktop-сборке используйте веб-интерфейс Termix в обычном браузере. Мобильное приложение не проверялось.
 
-Read the [docs](https://docs.termix.site/plugins/web-endpoint) to set it up and use it.
+На один хост предусмотрен **один основной endpoint**. Это сохраняет компактную стандартную форму и прямое открытие одним нажатием. Несколько endpoints и отдельное меню выбора в этой версии не реализованы.
 
-<br />
+Соединение с назначением устанавливает **браузер пользователя**. Доступность адреса с Termix-сервера ничего не гарантирует. Сервис только на loopback удалённого хоста или в недоступной пользователю сети не откроется без отдельно настроенной сетевой доступности. `localhost` указывает на компьютер пользователя. Плагин не меняет проверку TLS и не обходит предупреждения сертификатов.
 
-## Features
+## Сравнение
 
-- Open a web UI in a Termix tab or its own desktop window
-- Connect directly, or over an SSH tunnel through the host
-- Embedded pages never see your Termix login
+| Возможность                      | Host Web Launcher                    | Официальный Web Endpoint     |
+| -------------------------------- | ------------------------------------ | ---------------------------- |
+| Главная задача                   | Прямой адрес в браузере пользователя | Веб-интерфейсы внутри Termix |
+| SSH-туннели, прокси              | Нет                                  | Есть                         |
+| Вкладки/панели Termix, dashboard | Нет                                  | Есть                         |
+| Зависимость от Tunnels           | Нет                                  | Есть в исследованной версии  |
+| Несколько endpoints на хост      | Один основной                        | Несколько                    |
+| Namespace настроек               | `host-web-launcher`                  | `web-endpoint`               |
 
-<br />
+Оба плагина могут работать одновременно. Действие этого плагина имеет ID `host-web-launcher-open`; настройки и маршруты Web Endpoint не читаются и не изменяются. Миграции настроек нет.
 
-## Sponsors
+## Разработка
 
-For a paid sponsor spot, email [mail@termix.site](mailto:mail@termix.site).
+```bash
+npm ci
+npm run format:check
+npm run lint
+npm run typecheck
+npm test
+npm run build
+npm run validate
+npm run pack
+```
 
-<!-- SPONSORS:START -->
+Node.js 24 LTS. Для упаковки используется официальный `@termix-ssh/plugin-sdk` 1.0.20. У этого SDK backend entry обязателен: `src/backend/index.ts` содержит только пустой `activate()`. HTTP-маршрутов, таблиц, SSH, служб и фоновой работы нет. Единственная capability — `ui:surface`; доступ к адресу идёт через переданный SDK host record, отдельное backend-чтение хостов не требуется.
 
-<div align="center">
+Тесты проверяют URL, namespace, вызов браузера и реальные регистрационные поверхности SDK. Они не заменяют проверку на работающем Termix и браузере. Сохранение в базе выполняет Termix; локальный тест проверяет контракт полей и чтение восстановленного payload, а не реальную базу сервера.
 
-<br />
-
-<a href="https://www.blacksmith.sh/">
-  <img src="https://termix.site/img/sponsors/blacksmith.svg" height="40" alt="Blacksmith" />
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="https://www.cloudflare.com/">
-  <img src="https://termix.site/img/sponsors/cloudflare.png" height="40" alt="Cloudflare" />
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="https://akamai.com/">
-  <img src="https://termix.site/img/sponsors/akamai.svg" height="40" alt="Akamai" />
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="https://aws.amazon.com/">
-  <img src="https://termix.site/img/sponsors/aws.png" height="40" alt="AWS" />
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="https://rackgenius.com/">
-  <img src="https://termix.site/img/sponsors/rackgenius.png" height="40" alt="Rack Genius" />
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="https://ginernet.com/">
-  <img src="https://termix.site/img/sponsors/ginernet.png" height="40" alt="Ginernet" />
-</a>
-&nbsp;&nbsp;&nbsp;
-<a href="https://www.hetzner.com/?mtm_campaign=termix&mtm_medium=referral&mtm_content=sponsoring_link">
-  <img src="https://termix.site/img/sponsors/hetzner.png" height="40" alt="Hetzner" />
-</a>
-
-</div>
-
-<!-- SPONSORS:END -->
-
-<br />
-
-## Support
-
-Bugs and ideas for Web Endpoint go in this repo: [report a bug](https://github.com/Termix-SSH/Plugin-Web-Endpoint/issues/new?template=bug_report.yml) or [request a feature](https://github.com/Termix-SSH/Plugin-Web-Endpoint/issues/new?template=feature_request.yml). Report an issue on the plugin's page in the Plugins tab fills in your versions for you.
-
-Problems with Termix itself (login, hosts, credentials, sharing, sync) go in the [Termix repo](https://github.com/Termix-SSH/Termix/issues/new/choose). Not sure where it goes? Open it there and it will be moved.
-
-Add as much detail as you can, in English if possible. For questions, join the [Discord](https://discord.gg/jVQGdvHDrf) server.
-
-<br />
-
-## License
-
-Apache License 2.0. See [LICENSE](LICENSE).
+Источники, расхождения документации и SDK: [UPSTREAM](docs/UPSTREAM.md). Атрибуция сохранена в `NOTICE` и `LICENSE`.

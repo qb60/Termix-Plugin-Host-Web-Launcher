@@ -1,16 +1,8 @@
-node_modules
-dist
-coverage
-*.log
-.env
+node_modules/
+dist/
 *.tmxplug
-*.tmxplug.sig
-termix-plugin-signing.key
-.termix-tables-*
-
-# Editors and OS
-.idea/
-.vscode/
-.claude/
-.DS_Store
-Thumbs.db
+*.sig
+keys/
+*.key
+.env
+coverage/

@@ -1,37 +1,65 @@
 name: Release
-
-# Run by hand from a dev-X.Y.Z branch. stable releases X.Y.Z and merges the
-# branch into main; beta publishes X.Y.Z-beta.N for plugins on the beta
-# channel. overwrite releases the manifest version again from this commit.
-
 on:
   workflow_dispatch:
     inputs:
-      channel:
-        description: "Stable release or beta"
+      version:
+        description: "Stable version matching manifest, package and changelog (e.g. 1.0.0)"
         required: true
-        default: stable
-        type: choice
-        options:
-          - stable
-          - beta
-      mode:
-        description: "release, overwrite (stable only) or dry-run"
-        required: true
-        default: release
-        type: choice
-        options:
-          - release
-          - overwrite
-          - dry-run
-
+        type: string
 permissions:
-  contents: write
-
+  contents: read
+concurrency:
+  group: plugin-release
+  cancel-in-progress: false
 jobs:
   release:
-    uses: Termix-SSH/Termix-Registry/.github/workflows/plugin-release.yml@main
-    with:
-      channel: ${{ inputs.channel }}
-      mode: ${{ inputs.mode }}
-    secrets: inherit
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - name: Check release configuration
+        run: npm run release:check
+        env:
+          TERMIX_PLUGIN_SIGNING_KEY: ${{ secrets.TERMIX_PLUGIN_SIGNING_KEY }}
+          REGISTRY_PUBLIC_KEY: ${{ vars.REGISTRY_PUBLIC_KEY }}
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run validate
+      - run: npm run pack
+      - name: Sign and verify package
+        env:
+          TERMIX_PLUGIN_SIGNING_KEY: ${{ secrets.TERMIX_PLUGIN_SIGNING_KEY }}
+          REGISTRY_PUBLIC_KEY: ${{ vars.REGISTRY_PUBLIC_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="host-web-launcher-${RELEASE_VERSION}.tmxplug"
+          npx --no-install termix-plugin sign "$package"
+          npx --no-install termix-plugin verify "$package" --key "$REGISTRY_PUBLIC_KEY"
+          npx --no-install termix-plugin changelog --version "$RELEASE_VERSION" > release-notes.md
+      - name: Publish signed release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="v${RELEASE_VERSION}"
+          package="host-web-launcher-${RELEASE_VERSION}.tmxplug"
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" > /dev/null 2>&1; then
+            echo "Tag already exists; published releases are immutable."
+            exit 1
+          fi
+          gh release create "$tag" "$package" "$package.sig" --target "$GITHUB_SHA" --title "$tag" --notes-file release-notes.md --draft
+          gh release edit "$tag" --draft=false
