@@ -11,6 +11,7 @@
 ### Changed
 
 - English is the primary repository language, with linked Russian documentation copies using the `_RU` suffix.
+- Match the upstream endpoint editor typography, card layout and control placement.
 
 ## 1.0.0
 

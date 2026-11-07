@@ -22,5 +22,9 @@
   "addEndpoint": "Add endpoint",
   "removeEndpoint": "Remove endpoint {{number}}",
   "endpoint": "Endpoint {{number}}",
-  "noEndpoints": "Add an endpoint to open a web interface."
+  "noEndpoints": "Add an endpoint to open a web interface.",
+  "enabledHelp": "Show web endpoints for this host.",
+  "endpointsDisabled": "Enable Host Web Launcher to configure web endpoints.",
+  "address": "Address",
+  "delete": "Delete"
 }
