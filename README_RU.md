@@ -2,7 +2,7 @@
 
 [English version](README.md)
 
-Открывает веб-интерфейс хоста напрямую в новой вкладке браузера. ID: `host-web-launcher`, версия: `1.0.0`, лицензия: Apache-2.0.
+Открывает веб-интерфейс хоста напрямую в новой вкладке браузера. ID: `host-web-launcher`, версия: `1.0.1`, лицензия: Apache-2.0.
 
 Установка и публикация обоих репозиториев описаны в прилагаемом `SETUP_RU.md` уровнем выше. После разделения репозиториев используйте также [INSTALLATION](docs/INSTALLATION_RU.md), [DEVELOPMENT](docs/DEVELOPMENT_RU.md) и [RELEASING](docs/RELEASING_RU.md).
 

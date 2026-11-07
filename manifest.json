@@ -1,7 +1,7 @@
 {
   "id": "host-web-launcher",
   "name": "Host Web Launcher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Open host web interfaces directly in a new browser tab.",
   "author": {
     "name": "Host Web Launcher contributors"

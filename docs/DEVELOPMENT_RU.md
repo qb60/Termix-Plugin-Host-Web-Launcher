@@ -16,7 +16,7 @@ npm run validate
 npm run pack
 ```
 
-`build` должен идти перед CLI `validate`: валидатор проверяет существование `dist/backend.js` и `dist/frontend.js`. Результат упаковки — `host-web-launcher-1.0.0.tmxplug` в корне проекта. `node_modules`, `dist` и пакет не включаются в Git.
+`build` должен идти перед CLI `validate`: валидатор проверяет существование `dist/backend.js` и `dist/frontend.js`. Результат упаковки — `host-web-launcher-1.0.1.tmxplug` в корне проекта. `node_modules`, `dist` и пакет не включаются в Git.
 
 Основная логика — `src/frontend/launcher.ts`; регистрация и локализованные уведомления — `src/frontend/index.tsx`. `src/frontend/HostEditorSection.tsx` регистрируется через `registerHostEditorSection` в top group и редактирует список под `pluginSettings["host-web-launcher"].endpoints`. Поля объявлены скрытыми в манифесте для валидации и сохранения средствами ядра; `endpoints` — JSON-поле. Старые плоские поля остаются объявленными для совместимости и читаются как один эндпоинт, пока список не изменён. Пустой список не восстанавливает старые поля. Для host action отдельного поля `contributes.hostActions` в SDK нет: оно регистрируется через `app.registerHostAction`. `contributes.actions` обозначает другой механизм экспортируемых frontend actions и здесь не используется.
 

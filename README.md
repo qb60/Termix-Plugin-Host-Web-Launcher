@@ -2,7 +2,7 @@
 
 [Russian version](README_RU.md)
 
-Open a host's web interfaces directly in new browser tabs. ID: `host-web-launcher`, version: `1.0.0`, license: Apache-2.0.
+Open a host's web interfaces directly in new browser tabs. ID: `host-web-launcher`, version: `1.0.1`, license: Apache-2.0.
 
 See [INSTALLATION](docs/INSTALLATION.md), [DEVELOPMENT](docs/DEVELOPMENT.md) and [RELEASING](docs/RELEASING.md). The companion workspace's `SETUP_RU.md`, one directory above this repository, covers setup and publication of both repositories in Russian.
 

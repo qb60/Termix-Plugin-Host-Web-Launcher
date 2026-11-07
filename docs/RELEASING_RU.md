@@ -6,12 +6,12 @@
 
 1. Выполните проверки из DEVELOPMENT, закоммитьте и отправьте `main`.
 2. В GitHub → Settings → Secrets and variables → Actions создайте repository secret `TERMIX_PLUGIN_SIGNING_KEY` с **содержимым** файла ключа CLI. Это base64 PKCS8 DER, не путь к файлу. Создайте repository variable `REGISTRY_PUBLIC_KEY` с public key в base64.
-3. Actions → Release → Run workflow → Branch: main → Version: `1.0.0` → Run workflow.
+3. Actions → Release → Run workflow → Branch: main → Version: `1.0.1` → Run workflow.
 4. Workflow проверяет версии, тестирует, строит, упаковывает, подписывает официальным CLI, проверяет подпись public key и только затем создаёт draft release с обоими файлами и публикует его. Для релиза нужен `contents: write`; используемый стандартный `GITHUB_TOKEN` ограничен этим репозиторием.
-5. Откройте Releases → `v1.0.0`, проверьте `.tmxplug` и `.tmxplug.sig`, скачайте и выполните:
+5. Откройте Releases → `v1.0.1`, проверьте `.tmxplug` и `.tmxplug.sig`, скачайте и выполните:
 
 ```bash
-npx --no-install termix-plugin verify host-web-launcher-1.0.0.tmxplug --key 'YOUR_PUBLIC_KEY'
+npx --no-install termix-plugin verify host-web-launcher-1.0.1.tmxplug --key 'YOUR_PUBLIC_KEY'
 ```
 
 Без ключа, с неверным ключом или несогласованными версиями release не публикуется. Существующий тег не перезаписывается. После ошибки на шаге публикации проверьте draft и тег; удалять их вручную можно только если релиз ещё не был опубликован/проиндексирован. Уже опубликованный файл не заменяйте — выпускайте следующую версию.
