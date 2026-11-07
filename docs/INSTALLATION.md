@@ -1,11 +1,13 @@
-# Установка и проверка
+# Installation and verification
 
-Основной путь — доверенный custom registry. После его публикации администратор Termix открывает Plugins → Registries → Add registry, вводит `https://GITHUB_USERNAME.github.io/Termix-Plugins-Registry/index.json`, нажимает Check, сверяет key ID с владельцем и выбирает Trust and add. В Browse найдите Host Web Launcher и нажмите Install, затем Enable, если плагин ещё выключен.
+[Russian version](INSTALLATION_RU.md)
 
-В редакторе хоста откройте Host Web Launcher, включите переключатель, добавьте эндпоинты и для каждого заполните сервис, протокол, порт и путь. Сохраните. Действие возле хоста открывает единственный URL сразу или показывает меню выбора сервиса. Для стандартного порта оставьте поле пустым. Отдельное имя веб-сервиса не меняет SSH-адрес.
+The primary installation path is a trusted custom registry. Once it is published, a Termix administrator opens Plugins → Registries → Add registry, enters `https://GITHUB_USERNAME.github.io/Termix-Plugins-Registry/index.json`, clicks Check, confirms the key ID with the owner and selects Trust and add. In Browse, find Host Web Launcher, click Install, then Enable if the plugin is still disabled.
 
-Для локальной разработки можно установить файл через Plugins → Install from file при включённом developer mode. Даже подписанный файл, установленный вручную, Termix считает unverified; доверие и автоматические обновления обеспечиваются установкой из реестра. Не выдавайте локальную загрузку за проверку доверенной установки.
+In the host editor, open Host Web Launcher, turn on the switch and add endpoints. For each endpoint, set the service label, protocol, port and path. Save. The action beside the host opens a single URL immediately or shows a service picker. Leave the port empty to use the protocol's default. A separate web hostname does not change the SSH address.
 
-Для совместного использования установите Web Endpoint отдельно из официального реестра. У него собственные настройки; для этого плагина Tunnels устанавливать не нужно. Для проверки сохранения повторно откройте редактор после перезагрузки страницы.
+For local development, install a file through Plugins → Install from file with developer mode enabled. Termix treats manually installed files as unverified, even when signed; registry installation provides trust and automatic updates. A local file installation does not verify the trusted registry installation path.
 
-Если новая вкладка не появляется, разрешите всплывающие окна для сайта Termix, проверьте сообщение об ошибке настройки и попробуйте браузерный интерфейс вместо desktop. Если вкладка появилась, но адрес недоступен, проверьте доступность именно с вашего компьютера, DNS, порт, VPN и сертификат. Плагин не предоставляет сеть/туннель и не снимает TLS-проверки.
+To use both plugins, install Web Endpoint separately from the official registry. It has its own settings; Host Web Launcher does not require Tunnels. To check persistence, reload the page and reopen the editor.
+
+If no new tab appears, allow popups for the Termix site, check for configuration errors and try the browser interface instead of desktop. If the tab opens but the address is unreachable, check access from your own computer, DNS, port, VPN and certificate. The plugin provides no network access or tunnel and does not disable TLS verification.

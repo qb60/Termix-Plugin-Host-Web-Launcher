@@ -44,7 +44,7 @@ describe("URL construction", () => {
     ],
     [
       "example.com",
-      { path: "/space here/привет" },
+      { path: "/space here/\u043f\u0440\u0438\u0432\u0435\u0442" },
       "https://example.com/space%20here/%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82",
     ],
     [

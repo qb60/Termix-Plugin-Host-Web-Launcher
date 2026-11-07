@@ -1,19 +1,21 @@
-# Публикация
+# Releasing
 
-Сначала замените владельца: `npm run configure -- GITHUB_USERNAME` (подставьте настоящее имя). Обновите версию одновременно в `manifest.json`, `package.json`, `package-lock.json` и первом разделе `CHANGELOG.md`. Для package/lock удобно `npm version 1.0.1 --no-git-tag-version`; манифест и changelog редактируются отдельно.
+[Russian version](RELEASING_RU.md)
 
-1. Выполните проверки из DEVELOPMENT, закоммитьте и отправьте `main`.
-2. В GitHub → Settings → Secrets and variables → Actions создайте repository secret `TERMIX_PLUGIN_SIGNING_KEY` с **содержимым** файла ключа CLI. Это base64 PKCS8 DER, не путь к файлу. Создайте repository variable `REGISTRY_PUBLIC_KEY` с public key в base64.
+First configure the owner: `npm run configure -- GITHUB_USERNAME` (replace the placeholder with the real account). Update the version in `manifest.json`, `package.json`, `package-lock.json` and the first section of `CHANGELOG.md` together. For package/lock, use `npm version 1.0.1 --no-git-tag-version`; edit the manifest and changelog separately. Keep `CHANGELOG_RU.md` in sync.
+
+1. Run the checks in [DEVELOPMENT](DEVELOPMENT.md), commit and push `main`.
+2. In GitHub → Settings → Secrets and variables → Actions, create a repository secret named `TERMIX_PLUGIN_SIGNING_KEY` containing the CLI key file's **contents**. This is base64 PKCS8 DER, not a file path. Create the repository variable `REGISTRY_PUBLIC_KEY` with the base64 public key.
 3. Actions → Release → Run workflow → Branch: main → Version: `1.0.0` → Run workflow.
-4. Workflow проверяет версии, тестирует, строит, упаковывает, подписывает официальным CLI, проверяет подпись public key и только затем создаёт draft release с обоими файлами и публикует его. Для релиза нужен `contents: write`; используемый стандартный `GITHUB_TOKEN` ограничен этим репозиторием.
-5. Откройте Releases → `v1.0.0`, проверьте `.tmxplug` и `.tmxplug.sig`, скачайте и выполните:
+4. The workflow checks versions, tests, builds, packages, signs with the official CLI and verifies the signature against the public key. Only then does it create a draft release with both files and publish it. The release needs `contents: write`; the standard `GITHUB_TOKEN` is scoped to this repository.
+5. Open Releases → `v1.0.0`, check the `.tmxplug` and `.tmxplug.sig` files, download them and run:
 
 ```bash
 npx --no-install termix-plugin verify host-web-launcher-1.0.0.tmxplug --key 'YOUR_PUBLIC_KEY'
 ```
 
-Без ключа, с неверным ключом или несогласованными версиями release не публикуется. Существующий тег не перезаписывается. После ошибки на шаге публикации проверьте draft и тег; удалять их вручную можно только если релиз ещё не был опубликован/проиндексирован. Уже опубликованный файл не заменяйте — выпускайте следующую версию.
+Missing keys, incorrect keys or inconsistent versions prevent publication. Existing tags are never overwritten. After a publication failure, inspect the draft and tag; delete them manually only if the release has not yet been published or indexed. Never replace an already published file; release a new version.
 
-Свой workflow выбран вместо общего official release workflow: общий рассчитан на dev-ветки, слияние и возможность unsigned community submissions; для этого проекта нужна обязательная подпись собственным ключом и обычный `main`.
+This repository uses its own workflow because the shared official release workflow targets dev branches, merging and optional unsigned community submissions. This project requires signing with its own key and uses a regular `main` branch.
 
-Первый ключ создаётся локально командой `npx --no-install termix-plugin keygen --out /secure/offline/keys`. CLI печатает public key и key ID, но записывает только private key. Полный порядок настройки обоих проектов приведён в `SETUP_RU.md`, а архитектура доверия — в документации реестра SIGNING.
+Generate the first key locally with `npx --no-install termix-plugin keygen --out /secure/offline/keys`. The CLI prints the public key and key ID but writes only the private key. The companion workspace's `SETUP_RU.md` contains the complete setup procedure for both projects in Russian; the registry's SIGNING documentation explains its trust model.

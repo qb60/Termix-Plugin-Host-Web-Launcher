@@ -1,6 +1,8 @@
-# Разработка
+# Development
 
-Установите Git, Node.js 24 LTS и npm. Например, при установленном mise: `mise use --global node@24`, затем откройте новый терминал и проверьте `node --version`, `npm --version`.
+[Russian version](DEVELOPMENT_RU.md)
+
+Install Git, Node.js 24 LTS and npm. With mise installed, for example, run `mise use --global node@24`, open a new terminal and check `node --version` and `npm --version`.
 
 ```bash
 npm ci
@@ -14,14 +16,18 @@ npm run validate
 npm run pack
 ```
 
-`build` должен идти перед CLI `validate`: валидатор проверяет существование `dist/backend.js` и `dist/frontend.js`. Результат упаковки — `host-web-launcher-1.0.0.tmxplug` в корне проекта. `node_modules`, `dist` и пакет не включаются в Git.
+Run `build` before CLI `validate`: validation checks that `dist/backend.js` and `dist/frontend.js` exist. Packaging produces `host-web-launcher-1.0.0.tmxplug` in the project root. `node_modules`, `dist` and the package are excluded from Git.
 
-Основная логика — `src/frontend/launcher.ts`; регистрация и локализованные уведомления — `src/frontend/index.tsx`. `src/frontend/HostEditorSection.tsx` регистрируется через `registerHostEditorSection` в top group и редактирует список под `pluginSettings["host-web-launcher"].endpoints`. Поля объявлены скрытыми в манифесте для валидации и сохранения средствами ядра; `endpoints` — JSON-поле. Старые плоские поля остаются объявленными для совместимости и читаются как один эндпоинт, пока список не изменён. Пустой список не восстанавливает старые поля. Для host action отдельного поля `contributes.hostActions` в SDK нет: оно регистрируется через `app.registerHostAction`. `contributes.actions` обозначает другой механизм экспортируемых frontend actions и здесь не используется.
+The main logic is in `src/frontend/launcher.ts`; registration and localized notifications are in `src/frontend/index.tsx`. `src/frontend/HostEditorSection.tsx` is registered with `registerHostEditorSection` in the top group and edits the list at `pluginSettings["host-web-launcher"].endpoints`. Fields are declared hidden in the manifest for core validation and persistence; `endpoints` is a JSON field. Legacy flat fields remain declared for compatibility and are read as one endpoint until the list is edited. An empty list does not restore the old fields. The SDK has no separate `contributes.hostActions` manifest field: the host action is registered with `app.registerHostAction`. `contributes.actions` is a different mechanism for exported frontend actions and is unused here.
 
-Сохранённые значения не перезаписываются при активации и повторном редактировании. Defaults задаёт ядро; runtime также корректно обрабатывает отсутствующие протокол и путь. Для веб-порта default намеренно отсутствует, чтобы HTTP и HTTPS использовали разные стандартные значения. Пустой порт может сохраняться как `null` или пустая строка — оба значения означают стандартный порт.
+Activation and reopening the editor do not overwrite saved values. Core supplies defaults; runtime also handles missing protocol and path values. The web port intentionally has no default so HTTP and HTTPS use their own standard ports. An empty port may be stored as `null` or an empty string; both mean the protocol's default port.
 
-`tests/frontend` запускается через preset SDK в jsdom. `renderWithApp` использует настоящие реестры SDK; открытие браузера подменяется. Проверки URL включают некорректные схемы, порты, IPv6, percent encoding и невозможность сменить origin через путь. Настоящие popup blockers, DNS, доступность сервиса, сохранение в БД и desktop требуют ручного теста.
+`tests/frontend` runs in jsdom through the SDK preset. `renderWithApp` uses real SDK registries; browser opening is mocked. URL tests cover invalid schemes, ports, IPv6, percent encoding and attempts to change the origin through the path. Real popup blockers, DNS, service reachability, database persistence and desktop behavior need manual testing.
 
-Для ручной проверки включите developer mode в Termix, откройте Plugins → Install from file, выберите `.tmxplug`. Веб-браузер должен сохранить вкладку Termix, открыть отдельную вкладку назначения и не создавать workspace tab. Измените хост, сохраните, перезагрузите страницу и проверьте значения. Повторите с HTTP, HTTPS, IPv6 и установленным Web Endpoint. Проверьте disabled host и неверный порт, добавление/редактирование/удаление нескольких эндпоинтов, меню выбора и сохранение прежнего одиночного эндпоинта. При `noopener` браузер возвращает `null` даже при успешном открытии — это не признак блокировки.
+For a manual check, enable developer mode in Termix, open Plugins → Install from file and select the `.tmxplug`. The browser should keep the Termix tab, open a separate destination tab and create no workspace tab. Edit the host, save, reload the page and verify the values. Repeat with HTTP, HTTPS, IPv6 and Web Endpoint installed. Check disabled hosts, invalid ports, adding/editing/removing multiple endpoints, the picker and preservation of a legacy single endpoint. With `noopener`, the browser returns `null` even after a successful open; this does not indicate blocking.
 
-Не добавляйте `await` перед `window.open`: в исходниках ядра `runHostAction` вызывает `action.run` прямо. Сохранение пользовательского жеста зависит от этого пути; программные вызовы без клика могут блокироваться браузером.
+Do not add `await` before `window.open`: core's `runHostAction` invokes the action directly. Preserving the user's click gesture depends on this path; programmatic calls without a click may be blocked by the browser.
+
+## Language policy
+
+Write documentation, comments and repository messages in English. Keep Russian documentation as matching `_RU.md` files and link to each Russian copy near the start of its English original. Update both copies when behavior changes. Keep `locales/ru.json` under its standard name so Termix can load the Russian interface translations.

@@ -1,50 +1,52 @@
 # Host Web Launcher
 
-Открывает веб-интерфейс хоста напрямую в новой вкладке браузера. ID: `host-web-launcher`, версия: `1.0.0`, лицензия: Apache-2.0.
+[Russian version](README_RU.md)
 
-Установка и публикация обоих репозиториев описаны в прилагаемом `SETUP_RU.md` уровнем выше. После разделения репозиториев используйте также [INSTALLATION](docs/INSTALLATION.md), [DEVELOPMENT](docs/DEVELOPMENT.md) и [RELEASING](docs/RELEASING.md).
+Open a host's web interfaces directly in new browser tabs. ID: `host-web-launcher`, version: `1.0.0`, license: Apache-2.0.
 
-## Настройка хоста
+See [INSTALLATION](docs/INSTALLATION.md), [DEVELOPMENT](docs/DEVELOPMENT.md) and [RELEASING](docs/RELEASING.md). The companion workspace's `SETUP_RU.md`, one directory above this repository, covers setup and publication of both repositories in Russian.
 
-1. В Termix откройте редактор хоста и раздел **Host Web Launcher**. Редактор использует стандартный UI kit Termix.
-2. Включите переключатель. Нажмите **Добавить эндпоинт** для каждого сервиса и задайте название, HTTP/HTTPS, веб-порт и путь. Эндпоинты можно редактировать и удалять независимо.
-3. При необходимости задайте отдельное имя/IP веб-сервиса. Пустое поле использует адрес подключения хоста; SSH-порт никогда не становится веб-портом.
-4. Сохраните хост. Нажмите действие **Открыть веб-интерфейс** возле хоста или в его меню. Если эндпоинтов несколько, выберите сервис в меню; единственный эндпоинт открывается сразу. При включённом блокировщике разрешите всплывающие окна для Termix.
+## Host configuration
 
-Примеры:
+1. In Termix, open the host editor and select **Host Web Launcher**. The editor uses the standard Termix UI kit.
+2. Turn on the switch. Click **Add endpoint** for each service and set its label, HTTP/HTTPS protocol, web port and path. Endpoints can be edited and removed independently.
+3. Optionally specify a separate hostname/IP for the web service. An empty value uses the host's connection address; the SSH port never becomes the web port.
+4. Save the host. Click **Open web interface** beside the host or in its menu. With multiple endpoints, choose a service from the picker; a single endpoint opens directly. Allow popups for Termix if your browser blocks them.
 
-| Адрес хоста          | Протокол | Веб-порт | Путь     | URL                                    |
+Examples:
+
+| Host address         | Protocol | Web port | Path     | URL                                    |
 | -------------------- | -------- | -------- | -------- | -------------------------------------- |
 | `192.168.1.20`       | HTTPS    | 8006     | `/`      | `https://192.168.1.20:8006/`           |
 | `server.example.com` | HTTP     | 9000     | `/admin` | `http://server.example.com:9000/admin` |
 | `2001:db8::20`       | HTTPS    | 8006     | `/`      | `https://[2001:db8::20]:8006/`         |
 
-Пустой веб-порт означает 80 для HTTP и 443 для HTTPS; стандартный URL API убирает эти порты из строки. Поддерживаются query, fragment, Unicode-имена и пути; существующее корректное percent encoding сохраняется. В поле адреса нельзя вводить протокол, порт, путь или учётные данные. IPv6 можно вводить в квадратных скобках и без них. Zone ID IPv6 (`%eth0`) не поддерживается браузерным URL API. Необычные сокращённые, восьмеричные и шестнадцатеричные IPv4 отклоняются.
+An empty web port means 80 for HTTP and 443 for HTTPS; the standard URL API omits these ports from the URL string. Queries, fragments, Unicode hostnames and paths are supported; valid existing percent encoding is preserved. The address field accepts no protocol, port, path or credentials. IPv6 works with or without brackets. IPv6 zone IDs (`%eth0`) are unsupported by the browser URL API. Shortened, octal and hexadecimal IPv4 forms are rejected.
 
-## Область применения
+## Scope and limitations
 
-Поддерживаются Termix `>=26.10.3` с API `^1.9` и обычный веб-браузер. Действие вычисляет URL из уже загруженного хоста и вызывает `window.open(url, "_blank", "noopener,noreferrer")` синхронно, без сетевых запросов, таймеров и предварительных пустых вкладок. Страница Termix остаётся открытой. Браузер вправе открыть отдельное окно вместо вкладки согласно пользовательским настройкам; плагин не может принудительно изменить это решение.
+Supports Termix `>=26.10.3` with API `^1.9` and a regular web browser. The action builds the URL from the already loaded host and calls `window.open(url, "_blank", "noopener,noreferrer")` synchronously, without network requests, timers or preliminary blank tabs. The Termix page stays open. Browser preferences may open a separate window instead of a tab; the plugin cannot override this.
 
-В текущих исходниках desktop Termix обработчик `setWindowOpenHandler` направляет HTTP/HTTPS в системный браузер. Плагин пользуется тем же браузерным вызовом и не обращается к Electron internals. Это поведение зависит от desktop-сборки и не проверено запуском GUI в этой среде. Отдельного публичного `openExternal` в исследованном frontend SDK нет. На старой/изменённой desktop-сборке используйте веб-интерфейс Termix в обычном браузере. Мобильное приложение не проверялось.
+In the desktop Termix sources examined, `setWindowOpenHandler` sends HTTP/HTTPS URLs to the system browser. The plugin uses the same browser call and does not access Electron internals. This behavior depends on the desktop build and has not been tested in a GUI in this environment. The examined frontend SDK has no separate public `openExternal`. For older or modified desktop builds, use Termix's web interface in a regular browser. The mobile app has not been tested.
 
-На один хост можно добавить несколько эндпоинтов. Действие хоста показывает меню выбора, если их несколько, и открывает единственный сразу. Существующие плоские настройки читаются как первый эндпоинт; при редактировании список сохраняется в том же namespace. Удаление всех эндпоинтов скрывает действие хоста.
+A host can have multiple endpoints. The host action shows a picker for multiple endpoints and opens a single endpoint immediately. Existing flat settings are read as the first endpoint; editing saves the list in the same namespace. Removing all endpoints hides the host action.
 
-Соединение с назначением устанавливает **браузер пользователя**. Доступность адреса с Termix-сервера ничего не гарантирует. Сервис только на loopback удалённого хоста или в недоступной пользователю сети не откроется без отдельно настроенной сетевой доступности. `localhost` указывает на компьютер пользователя. Плагин не меняет проверку TLS и не обходит предупреждения сертификатов.
+The **user's browser** connects to the destination. Reachability from the Termix server does not guarantee access. A service bound only to the remote host's loopback interface or on an inaccessible network needs separately configured network access. `localhost` refers to the user's computer. The plugin does not change TLS verification or bypass certificate warnings.
 
-## Сравнение
+## Comparison
 
-| Возможность                      | Host Web Launcher                    | Официальный Web Endpoint     |
-| -------------------------------- | ------------------------------------ | ---------------------------- |
-| Главная задача                   | Прямой адрес в браузере пользователя | Веб-интерфейсы внутри Termix |
-| SSH-туннели, прокси              | Нет                                  | Есть                         |
-| Вкладки/панели Termix, dashboard | Нет                                  | Есть                         |
-| Зависимость от Tunnels           | Нет                                  | Есть в исследованной версии  |
-| Несколько endpoints на хост      | Несколько                            | Несколько                    |
-| Namespace настроек               | `host-web-launcher`                  | `web-endpoint`               |
+| Feature                        | Host Web Launcher                | Official Web Endpoint        |
+| ------------------------------ | -------------------------------- | ---------------------------- |
+| Main purpose                   | Direct URL in the user's browser | Web interfaces inside Termix |
+| SSH tunnels and proxies        | No                               | Yes                          |
+| Termix tabs, panels, dashboard | No                               | Yes                          |
+| Tunnels dependency             | No                               | Yes in the examined version  |
+| Multiple endpoints per host    | Yes                              | Yes                          |
+| Settings namespace             | `host-web-launcher`              | `web-endpoint`               |
 
-Оба плагина могут работать одновременно. Действие этого плагина имеет ID `host-web-launcher-open`; настройки и маршруты Web Endpoint не читаются и не изменяются. Миграции настроек нет.
+Both plugins can run together. This plugin's action ID is `host-web-launcher-open`; it does not read or change Web Endpoint settings or routes. There is no migration from Web Endpoint.
 
-## Разработка
+## Development
 
 ```bash
 npm ci
@@ -57,8 +59,10 @@ npm run validate
 npm run pack
 ```
 
-Node.js 24 LTS. Для упаковки используется официальный `@termix-ssh/plugin-sdk` 1.0.20. У этого SDK backend entry обязателен: `src/backend/index.ts` содержит только пустой `activate()`. HTTP-маршрутов, таблиц, SSH, служб и фоновой работы нет. Единственная capability — `ui:surface`; доступ к адресу идёт через переданный SDK host record, отдельное backend-чтение хостов не требуется.
+Requires Node.js 24 LTS. Packaging uses the official `@termix-ssh/plugin-sdk` 1.0.20. This SDK requires a backend entry: `src/backend/index.ts` contains only an empty `activate()`. There are no HTTP routes, tables, SSH connections, services or background tasks. The only capability is `ui:surface`; addresses come from the SDK's host record, so no backend host lookup is needed.
 
-Тесты проверяют URL, namespace, вызов браузера и реальные регистрационные поверхности SDK. Они не заменяют проверку на работающем Termix и браузере. Сохранение в базе выполняет Termix; локальный тест проверяет контракт полей и чтение восстановленного payload, а не реальную базу сервера.
+Tests cover URLs, namespaces, browser calls, endpoint editing and the SDK's real registration surfaces. They do not replace testing in a running Termix instance and browser. Termix handles database persistence; local tests check the field contract and restored payloads rather than a real server database.
 
-Источники, расхождения документации и SDK: [UPSTREAM](docs/UPSTREAM.md). Атрибуция сохранена в `NOTICE` и `LICENSE`.
+English is the repository's primary language. Russian documentation uses the `_RU.md` suffix and is linked near the start of each English file. `locales/ru.json` keeps its standard name for Termix's Russian UI localization.
+
+Sources and documentation/SDK differences: [UPSTREAM](docs/UPSTREAM.md). Attribution is preserved in `NOTICE` and `LICENSE`.
