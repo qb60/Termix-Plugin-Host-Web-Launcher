@@ -91,6 +91,35 @@ export function settingsOf(
   return host.pluginSettings?.[PLUGIN_ID] ?? {};
 }
 
+/** Read legacy single-endpoint settings until the list is first edited. */
+export function endpointsOf(
+  host: Pick<PluginHostRecord, "pluginSettings">,
+): Endpoint[] {
+  const settings = settingsOf(host);
+  if (settings.endpoints !== undefined) {
+    return Array.isArray(settings.endpoints)
+      ? settings.endpoints.filter(
+          (entry): entry is Endpoint =>
+            entry !== null &&
+            typeof entry === "object" &&
+            !Array.isArray(entry),
+        )
+      : [];
+  }
+  return settings.enabled === true ||
+    ["label", "protocol", "port", "path", "hostname"].some(
+      (key) => settings[key] !== undefined,
+    )
+    ? [settings]
+    : [];
+}
+
+export function endpointLabel(endpoint: Endpoint, index: number): string {
+  return typeof endpoint.label === "string" && endpoint.label.trim()
+    ? endpoint.label.trim()
+    : `Web ${index + 1}`;
+}
+
 export function createHostAction(
   icon: HostActionContribution["icon"],
   report: (code: UrlErrorCode | "open") => void,
@@ -101,23 +130,31 @@ export function createHostAction(
     icon,
     kind: "open",
     order: 81,
-    when: (host) => settingsOf(host).enabled === true,
+    when: (host) =>
+      settingsOf(host).enabled === true && endpointsOf(host).length > 0,
     label: (host) => {
-      const label = settingsOf(host).label;
-      return typeof label === "string" && label.trim()
-        ? label.trim()
+      const endpoints = endpointsOf(host);
+      return endpoints.length === 1
+        ? endpointLabel(endpoints[0], 0)
         : undefined;
     },
-    run: (host) => {
-      if (settingsOf(host).enabled !== true) return;
-      try {
-        const url = buildUrl(host.ip, settingsOf(host));
-        // No await, timers, blank tabs or shell API: preserve the click gesture.
-        window.open(url, "_blank", "noopener,noreferrer");
-        // A null handle is normal with noopener, so it cannot detect blocking.
-      } catch (error) {
-        report(error instanceof UrlError ? error.code : "open");
-      }
-    },
+    items: (host) =>
+      settingsOf(host).enabled !== true
+        ? []
+        : endpointsOf(host).map((endpoint, index) => ({
+            id: String(index),
+            label: endpointLabel(endpoint, index),
+            run: (target) => {
+              if (settingsOf(target).enabled !== true) return;
+              try {
+                const url = buildUrl(target.ip, endpoint);
+                // No await or timers: preserve the endpoint pick's click gesture.
+                window.open(url, "_blank", "noopener,noreferrer");
+                // A null handle is normal with noopener, so it cannot detect blocking.
+              } catch (error) {
+                report(error instanceof UrlError ? error.code : "open");
+              }
+            },
+          })),
   };
 }

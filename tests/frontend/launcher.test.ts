@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildUrl,
+  endpointsOf,
   createHostAction,
   PLUGIN_ID,
   settingsOf,
@@ -106,7 +107,9 @@ it("opens synchronously and preserves the existing page without using shell tabs
   } as unknown as ShellApi;
   const report = vi.fn();
   const action = createHostAction(() => null, report);
-  expect(action.run?.(host({ port: 8006 }), shell)).toBeUndefined();
+  expect(
+    action.items!(host({ port: 8006 }))[0].run(host({ port: 8006 }), shell),
+  ).toBeUndefined();
   expect(open).toHaveBeenCalledExactlyOnceWith(
     "https://192.168.1.20:8006/",
     "_blank",
@@ -121,13 +124,17 @@ it("hides disabled hosts and never opens them", () => {
   const open = vi.spyOn(window, "open").mockReturnValue(null);
   const action = createHostAction(() => null, vi.fn());
   expect(action.when(host({ enabled: false }))).toBe(false);
-  action.run?.(host({ enabled: false }), {} as ShellApi);
+  expect(action.items!(host({ enabled: false }))).toEqual([]);
   expect(open).not.toHaveBeenCalled();
 });
 it("reports invalid configuration before opening any tab", () => {
   const open = vi.spyOn(window, "open").mockReturnValue(null);
   const report = vi.fn();
-  createHostAction(() => null, report).run?.(host({ port: 0 }), {} as ShellApi);
+  const record = host({ port: 0 });
+  createHostAction(() => null, report).items!(record)[0].run(
+    record,
+    {} as ShellApi,
+  );
   expect(report).toHaveBeenCalledWith("port");
   expect(open).not.toHaveBeenCalled();
 });
@@ -158,5 +165,46 @@ it("passes the official manifest validator with only UI capability", () => {
   expect(manifest.capabilities).toEqual(["ui:surface"]);
   expect("dependencies" in manifest).toBe(false);
   expect("tabs" in manifest.contributes).toBe(false);
-  expect(manifest.contributes.settings.host.enableKey).toBe("enabled");
+  expect(
+    manifest.contributes.settings.host.fields.find(
+      (field) => field.key === "endpoints",
+    )?.type,
+  ).toBe("json");
 });
+
+it("offers one picker item per endpoint and opens only the chosen target", () => {
+  const record = host({
+    endpoints: [
+      { label: "Proxmox", port: 8006 },
+      { label: "Metrics", protocol: "http", port: 9000, path: "/metrics" },
+    ],
+  });
+  const open = vi.spyOn(window, "open").mockReturnValue(null);
+  const report = vi.fn();
+  const action = createHostAction(() => null, report);
+  expect(action.when(record)).toBe(true);
+  expect(action.label?.(record)).toBeUndefined();
+  const items = action.items!(record);
+  expect(items.map((item) => item.label)).toEqual(["Proxmox", "Metrics"]);
+  expect(new Set(items.map((item) => item.id)).size).toBe(2);
+  items[1].run(record, {} as ShellApi);
+  expect(open).toHaveBeenCalledExactlyOnceWith(
+    "http://192.168.1.20:9000/metrics",
+    "_blank",
+    "noopener,noreferrer",
+  );
+  items[0].run(host({ enabled: false }), {} as ShellApi);
+  expect(open).toHaveBeenCalledTimes(1);
+  expect(report).not.toHaveBeenCalled();
+});
+it("keeps an explicitly empty list empty instead of reviving legacy fields", () => {
+  const record = host({ port: 8006, endpoints: [] });
+  expect(endpointsOf(record)).toEqual([]);
+  expect(createHostAction(() => null, vi.fn()).when(record)).toBe(false);
+});
+it.each([null, "bad", {}, [null, 1, "bad", []]])(
+  "ignores malformed endpoint lists %j",
+  (endpoints) => {
+    expect(endpointsOf(host({ endpoints }))).toEqual([]);
+  },
+);

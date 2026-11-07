@@ -18,17 +18,22 @@
   "contributes": {
     "settings": {
       "host": {
-        "enableKey": "enabled",
-        "enableLabelKey": "enabled",
-        "enableDescriptionKey": "help",
         "fields": [
+          {
+            "key": "enabled",
+            "type": "boolean",
+            "default": false,
+            "labelKey": "enabled",
+            "hidden": true
+          },
           {
             "key": "label",
             "type": "string",
             "default": "Web",
             "defaultable": false,
             "labelKey": "label",
-            "requires": "enabled"
+            "requires": "enabled",
+            "hidden": true
           },
           {
             "key": "protocol",
@@ -45,7 +50,8 @@
               }
             ],
             "labelKey": "protocol",
-            "requires": "enabled"
+            "requires": "enabled",
+            "hidden": true
           },
           {
             "key": "port",
@@ -53,14 +59,16 @@
             "min": 1,
             "max": 65535,
             "labelKey": "port",
-            "requires": "enabled"
+            "requires": "enabled",
+            "hidden": true
           },
           {
             "key": "path",
             "type": "string",
             "default": "/",
             "labelKey": "path",
-            "requires": "enabled"
+            "requires": "enabled",
+            "hidden": true
           },
           {
             "key": "hostname",
@@ -69,7 +77,15 @@
             "defaultable": false,
             "descriptionKey": "hostnameHelp",
             "labelKey": "hostname",
-            "requires": "enabled"
+            "requires": "enabled",
+            "hidden": true
+          },
+          {
+            "key": "endpoints",
+            "type": "json",
+            "labelKey": "endpoints",
+            "defaultable": false,
+            "hidden": true
           }
         ]
       }

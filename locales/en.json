@@ -16,5 +16,11 @@
     "port": "Port must be an integer between 1 and 65535.",
     "path": "Invalid web path. Check escapes and remove control characters or backslashes.",
     "open": "Could not open the web interface."
-  }
+  },
+  "title": "Host Web Launcher",
+  "endpoints": "Web endpoints",
+  "addEndpoint": "Add endpoint",
+  "removeEndpoint": "Remove endpoint {{number}}",
+  "endpoint": "Endpoint {{number}}",
+  "noEndpoints": "Add an endpoint to open a web interface."
 }

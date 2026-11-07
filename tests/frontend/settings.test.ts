@@ -6,7 +6,7 @@ import {
 } from "@termix-ssh/plugin-sdk/settings";
 import type { PluginManifest } from "@termix-ssh/plugin-sdk/manifest";
 import manifest from "../../manifest.json";
-import { buildUrl, settingsOf } from "../../src/frontend/launcher";
+import { buildUrl, endpointsOf, settingsOf } from "../../src/frontend/launcher";
 
 const schema = (manifest as PluginManifest).contributes!.settings!.host!;
 it("uses declared defaults while leaving the port to the selected protocol", () => {
@@ -44,4 +44,22 @@ it("keeps settings through the core field validation and serialized host payload
   expect(buildUrl("192.168.1.20", settingsOf(host))).toBe(
     "https://web.example.com:8006/admin",
   );
+});
+
+it("preserves an endpoint list through core validation and JSON persistence", () => {
+  const endpoints = [
+    { label: "Admin", port: 8006 },
+    { label: "Metrics", protocol: "http", port: "9000" },
+  ];
+  const field = schema.fields.find((field) => field.key === "endpoints")!;
+  expect(validateSettingValue(field, endpoints)).toBeNull();
+  const restored = JSON.parse(
+    JSON.stringify({
+      pluginSettings: { "host-web-launcher": { enabled: true, endpoints } },
+    }),
+  );
+  expect(endpointsOf(restored)).toEqual(endpoints);
+  expect(
+    endpointsOf(restored).map((endpoint) => buildUrl("example.com", endpoint)),
+  ).toEqual(["https://example.com:8006/", "http://example.com:9000/"]);
 });
